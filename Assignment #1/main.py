@@ -8,11 +8,14 @@ def check_URL(url):
     URL_PATTERN = ("((http|https)://)(pt.wikipedia.org/wiki/)[a-zA-Z0-9%_]+")
 
     if len(url) == 1 or len(url) > 2:
+        print("Modo de uso: python main.py URL")
+        print("Ex: python main.py https://pt.wikipedia.org/wiki/Simula%C3%A7%C3%A3o_de_reservat%C3%B3rio")
         sys.exit()
     else:
         if re.match(URL_PATTERN, url[1]):
             return url[1]
         else:
+            print("A URL informada não é válida ou não pertence ao domínio: pt.wikipedia.org/wiki/")
             sys.exit()
 
 # Função para lidar com o menu
@@ -49,20 +52,22 @@ def menu(url):
         os.system('cls' if os.name == 'nt' else 'clear')
 
         # Procura a tag
-        content = res.findAll(attrs = { 'class' : re.compile('toclevel-\d+ tocsection-\d+') })
+        content = res.findAll(attrs = { 'class' : re.compile('toclevel-\d+\s?(tocsection-\d+)?') })
 
         # Verifica se o artigo tem índice
         if content == []:
             print("Este artigo não tem índice.")
-            time.sleep(3)
-            sys.exit()
+            print("\n\nPressione ENTER para voltar ao menu...")
+            op = input("")
+            menu(url)
 
         # Printa o índice
         header = "-" * 40
         print(header +  "\n{0:^40s}".format("Índice") + '\n' + header)
         for ind in content:
             num = re.search('>\d+(\.\d+)*?<', str(ind))
-            text = re.search('toctext\">[A-Za-z0-9À-ú\s]+', str(ind))
+            text = re.search('toctext\">[A-Za-z0-9À-ú\s\.\,\-\_\(\)\;\:\'\"]+', str(ind))
+
             if '.' in num.group():
                 occ = num.group().count('.')
                 print("\t" * occ + "{0:>2s} {1}".format(num.group().replace('>', '').replace('<', '.'), text.group().replace('toctext">', '')))
@@ -80,28 +85,31 @@ def menu(url):
         os.system('cls' if os.name == 'nt' else 'clear')
 
         # Procura a tag
-        content = res.findAll(attrs = { 'href' : re.compile('\/[a-zA-Z]+\/[a-zA-Z]+:[a-zA-Z0-9\_\-\,]+\.[a-zA-Z]+') })
+        content = res.findAll(attrs = { 'href' : re.compile('\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+') })
 
         # Verifica se o artigo tem imagens
         if content == []:
             print("Este artigo não tem imagens.")
-            time.sleep(3)
-            sys.exit()
+            print("\n\nPressione ENTER para voltar ao menu...")
+            op = input("")
+            menu(url)
 
         # Printa as imagens
         header = "-" * 40
         print(header +  "\n{0:^40s}".format("Imagens") + '\n' + header)
         images = []
+        i = 1
         for ind in content:
-            text = re.search('\/[a-zA-Z]+\/[a-zA-Z]+:[a-zA-Z0-9\_\-\,]+\.[a-zA-Z]+', str(ind))
-            
+            text = re.search('\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+', str(ind))
+
             # Tratamento para não printar repetidos
             if text.group() not in images:
                 images.append(text.group())
                 if ':' in os.path.basename(text.group()):
-                    print(os.path.basename(text.group()).split(':')[1])
+                    print("{}. ".format(i) + os.path.basename(text.group()).split(':')[1])
                 else:
-                    print(os.path.basename(text.group()))
+                    print("{}. ".format(i) + os.path.basename(text.group()))
+                i+=1
 
         # Volta ao menu
         while True:
@@ -113,23 +121,28 @@ def menu(url):
         # Limpa a tela
         os.system('cls' if os.name == 'nt' else 'clear')
 
-        # Procura a tag
-        content = res.findAll(attrs = { 'id' : re.compile('cite_note-\d+') })
+        # Procura a tag (neste caso a tag MAIN onde o artigo em si fica)
+        content = res.findAll(attrs = { 'id' : re.compile('^content$') })
 
         # Verifica se o artigo tem referências
         if content == []:
             print("Este artigo não tem referências.")
-            time.sleep(3)
-            sys.exit()  
+            print("\n\nPressione ENTER para voltar ao menu...")
+            op = input("")
+            menu(url) 
 
         # Printa as referências
         header = "-" * 40
-        print(header +  "\n{0:^40s}".format("Imagens") + '\n' + header)
+        print(header +  "\n{0:^40s}".format("Referências") + '\n' + header)
         num = 1  #  índice das referências
         for ind in content:
-            text = re.search('<span class="reference-text"><.+>?[a-zA-Z0-9À-ú]+>', str(ind))
-            print(str(num) + ' ' + text.group()) #TODO: Parei aqui
-            num+=1
+            text = re.search('<h2><span .+ id="Referências">.+</h2>\n<ul>.+</li>\n?(<li>?.+</li>\n)+.+</ul>', str(ind))
+            text = re.search('<ul>?(<li>.+</li>\n?)+</ul>', text.group())
+            text = text.group().replace('<ul>', '').replace('<li>','').replace('</ul>', '').replace('</li>', '')
+            text = text.split('\n')
+            for ref in text:
+                print("{}. ".format(num) + ref)
+                num+=1
 
         # Volta ao menu
         while True:
@@ -138,7 +151,39 @@ def menu(url):
             menu(url)    
 
     elif op == '4':
-        pass
+        # Limpa a tela
+        os.system('cls' if os.name == 'nt' else 'clear')
+        
+        # Procura a tag (neste caso a tag MAIN onde o artigo em si fica)
+        content = res.findAll(attrs = { 'id' : re.compile('^content$') })
+
+        # Verifica se o artigo tem links
+        if content == []:
+            print("Este artigo não tem links para outros artigos.")
+            print("\n\nPressione ENTER para voltar ao menu...")
+            op = input("")
+            menu(url)
+
+        # Printa os links
+        header = "-" * 40
+        print(header +  "\n{0:^40s}".format("Links para outros artigos") + '\n' + header)
+        i = 1
+        links = []
+        for ind in content:
+            text = re.findall('href=\"/wiki/[A-Za-z0-9À-ú\-\_\@\%\(\)\s]+\"', str(content))
+
+            for link in text:
+                # Tratamento para não printar repetidos
+                if link.split("\"")[1] not in links:
+                    links.append(link.split("\"")[1])
+                    print("{}. ".format(i) + link.split("\"")[1])
+                    i+=1
+
+        # Volta ao menu
+        while True:
+            print("\n\nPressione ENTER para voltar ao menu...")
+            op = input("")
+            menu(url)   
     elif op == '5':
         sys.exit()
     else:
