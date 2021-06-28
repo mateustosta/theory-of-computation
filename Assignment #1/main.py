@@ -72,7 +72,118 @@ def get_content_table(response, url):
 
 
 def get_images(response, url):
-    pass
+    """Lê o HTML da página e exibe os nomes de arquivos de imagem"""
+    # limpa a tela
+    os.system("cls" if os.name == "nt" else "clear")
+
+    # procura a tag
+    content = response.findAll(
+        attrs={"href": re.compile(
+            "\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+")})
+
+    # verifica se o artigo tem imagens
+    if content == []:
+        print("Este artigo não tem imagens.")
+        print("\n\nPressione ENTER para voltar ao menu...")
+        option = input("")
+        menu(url)
+
+    # template para as imagens
+    header = "-" * 40
+    print("{header}\n{text:^40}\n{header}".format(
+        header=header, text="Imagens"))
+
+    # array para excluir duplicados
+    images = []
+    i = 1
+    for ind in content:
+        text = re.search("\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+", str(ind))
+
+        # tratamento para não printar repetidos
+        if text.group() not in images:
+            images.append(text.group())
+            if ":" in os.path.basename(text.group()):
+                print(f"{i}. {os.path.basename(text.group()).split(':')[1]}")
+            else:
+                print(f"{i}. {os.path.basename(text.group())}")
+            i += 1
+
+    # volta ao menu
+    print("\n\nPressione ENTER para voltar ao menu...")
+    option = input("")
+    menu(url)
+
+
+def get_references(response, url):
+    """Lê o HTML da página e exibe as referências"""
+    # limpa a tela
+    os.system("cls" if os.name == "nt" else "clear")
+
+    # procura a tag
+    content = response.findAll(
+        attrs={"id": re.compile("^content$")})
+
+    # verifica se o artigo tem referências
+    if content == []:
+        print("Este artigo não tem referências.")
+        print("\n\nPressione ENTER para voltar ao menu...")
+        option = input("")
+        menu(url)
+
+    # template para as referências
+    header = "-" * 40
+    print("{header}\n{text:^40}\n{header}".format(
+        header=header, text="Referências"))
+
+    # TODO: Pegar as referências
+
+    # volta ao menu
+    print("\n\nPressione ENTER para voltar ao menu...")
+    option = input("")
+    menu(url)
+
+
+def get_links(response, url):
+    """Lê o HTML da página e exibe os links para outros
+    artigos da wikipedia
+    """
+    # limpa a tela
+    os.system("cls" if os.name == "nt" else "clear")
+
+    # procura a tag
+    content = response.findAll(
+        attrs={"id": re.compile("^content$")})
+
+    # verifica se o artigo tem links
+    if content == []:
+        print("Este artigo não tem links para outros artigos.")
+        print("\n\nPressione ENTER para voltar ao menu...")
+        option = input("")
+        menu(url)
+
+    # template para os links
+    header = "-" * 40
+    print("{header}\n{text:^40}\n{header}".format(
+        header=header, text="Links para outros artigos"))
+
+    i = 1
+    # array para eliminar duplicados
+    links = []
+    for ind in content:
+        text = re.findall(
+            "href=\"/wiki/[A-Za-z0-9À-ú\-\_\@\%\(\)\s]+\"", str(ind))
+
+        for link in text:
+            # tratamento para não printar repetidos
+            if link.split('"')[1] not in links:
+                links.append(link.split('"')[1])
+                print("{0}. {1}".format(i, link.split('"')[1]))
+                i += 1
+
+    # volta ao menu
+    print("\n\nPressione ENTER para voltar ao menu...")
+    option = input("")
+    menu(url)
 
 
 def menu(url):
@@ -88,9 +199,9 @@ def menu(url):
         "{0:<25} {1}".format(
         "2", "Listar todos os nomes de arquivos de imagens presentes no artigo"),
         "{0:<25} {1}".format(
-                 "3", "Listar todas as referências bibliográficas disponíveis na página"),
+        "3", "Listar todas as referências bibliográficas disponíveis na página"),
         "{0:<25} {1}".format(
-                 "4", "Listar todos os links para outros artigos da Wikipédia que são citados no conteúdo do artigo"),
+        "4", "Listar todos os links para outros artigos da Wikipédia que são citados no conteúdo do artigo"),
         "{0:<25} {1}".format("5", "Sair"), header]
     print("\n".join(lines))
 
@@ -114,9 +225,9 @@ def menu(url):
     elif option == "2":
         get_images(response, url)
     elif option == "3":
-        pass
+        get_references(response, url)
     elif option == "4":
-        pass
+        get_links(response, url)
     elif option == "5":
         sys.exit()
     else:
