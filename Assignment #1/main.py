@@ -27,7 +27,7 @@ def url_handle():
             f"A URL informada não é válida ou não pertence ao domínio 'pt.wikipedia.org/wiki/'. URL informada: {url}")
 
         # chamada recursiva para ler uma nova url
-        url_handle()
+        main()
 
 
 def get_content_table(response, url):
@@ -134,8 +134,43 @@ def get_references(response, url):
     header = "-" * 40
     print("{header}\n{text:^40}\n{header}".format(
         header=header, text="Referências"))
+    num = 1
+    for ind in content:
+        text = re.search(
+            '<h2><span .+ id="Referências">.+</h2>\n<ul>.+</li>\n?(<li>?.+</li>\n)+.+</ul>', str(ind))
 
-    # TODO: Pegar as referências
+        # caso em que as referências não são numeradas e não possuem links
+        if text is not None:
+            text = re.search("<ul>?(<li>.+</li>\n?)+</ul>", text.group())
+            text = text.group().replace("<ul>", "").replace(
+                "<li>", "").replace("</ul>", "").replace("</li>", "")
+            text = text.split("\n")
+
+            for ref in text:
+                print(f"{num}. {ref}")
+                num += 1
+        else:
+            # caso em que as referências são numeradas
+            text = re.findall(
+                '<span class="reference-text">.+</span>', str(ind))
+
+            for ref in text:
+                tmp = re.search(
+                    '(<span class="reference-text">)(<cite class="citation book">)?.+(<a.+</a>)', ref)
+
+                # caso com link
+                if tmp is not None:
+                    tmp = tmp.group().replace('<span class="reference-text">',
+                                              "").replace("</span>", "").replace('<cite class="citation book">', "").replace("<i>", "").replace("</i>", "")
+                    tmp = re.search(
+                        '^([A-Za-z0-9À-ú\s,\.\(\)\;\-/]+)(?!((<a .+>)(.+)(</a>)))', tmp).group()
+                    print(f"{num}. {tmp}")
+                    num += 1
+                else:
+                    # caso sem link
+                    print("{0}. {1}".format(num, ref.replace(
+                        "</span>", "").replace('<span class="reference-text">', "").replace("<i>", "").replace("</i>", "")))
+                    num += 1
 
     # volta ao menu
     print("\n\nPressione ENTER para voltar ao menu...")
@@ -238,9 +273,13 @@ def menu(url):
         menu(url)
 
 
-if __name__ == "__main__":
+def main():
     # lê e valida a URL
     url = url_handle()
 
     # invoca o menu
     menu(url)
+
+
+if __name__ == "__main__":
+    main()
