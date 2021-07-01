@@ -123,17 +123,11 @@ def get_references(response, url):
     content = response.findAll(
         attrs={"id": re.compile("^content$")})
 
-    # verifica se o artigo tem referências
-    if content == []:
-        print("Este artigo não tem referências.")
-        print("\n\nPressione ENTER para voltar ao menu...")
-        option = input("")
-        menu(url)
-
     # template para as referências
     header = "-" * 40
     print("{header}\n{text:^40}\n{header}".format(
         header=header, text="Referências"))
+
     num = 1
     for ind in content:
         text = re.search(
@@ -188,13 +182,6 @@ def get_links(response, url):
     # procura a tag
     content = response.findAll(
         attrs={"id": re.compile("^content$")})
-
-    # verifica se o artigo tem links
-    if content == []:
-        print("Este artigo não tem links para outros artigos.")
-        print("\n\nPressione ENTER para voltar ao menu...")
-        option = input("")
-        menu(url)
 
     # template para os links
     header = "-" * 40
