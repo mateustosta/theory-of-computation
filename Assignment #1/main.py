@@ -143,28 +143,6 @@ def get_references(response, url):
             for ref in text:
                 print(f"{num}. {ref}")
                 num += 1
-        else:
-            # caso em que as referências são numeradas
-            text = re.findall(
-                '<span class="reference-text">.+</span>', str(ind))
-
-            for ref in text:
-                tmp = re.search(
-                    '(<span class="reference-text">)(<cite class="citation book">)?.+(<a.+</a>)', ref)
-
-                # caso com link
-                if tmp is not None:
-                    tmp = tmp.group().replace('<span class="reference-text">',
-                                              "").replace("</span>", "").replace('<cite class="citation book">', "").replace("<i>", "").replace("</i>", "")
-                    tmp = re.search(
-                        '^([A-Za-z0-9À-ú\s,\.\(\)\;\-/]+)(?!((<a .+>)(.+)(</a>)))', tmp).group()
-                    print(f"{num}. {tmp}")
-                    num += 1
-                else:
-                    # caso sem link
-                    print("{0}. {1}".format(num, ref.replace(
-                        "</span>", "").replace('<span class="reference-text">', "").replace("<i>", "").replace("</i>", "")))
-                    num += 1
 
     # volta ao menu
     print("\n\nPressione ENTER para voltar ao menu...")
