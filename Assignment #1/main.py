@@ -23,8 +23,7 @@ def url_handle():
             return "https://"+url
         return url
     else:
-        print(
-            f"A URL informada não é válida ou não pertence ao domínio 'pt.wikipedia.org/wiki/'. URL informada: {url}")
+        print(f"A URL informada não é válida ou não pertence ao domínio 'pt.wikipedia.org/wiki/'. URL informada: {url}")
 
         # chamada recursiva para ler uma nova url
         main()
@@ -36,8 +35,7 @@ def get_content_table(response, url):
     os.system("cls" if os.name == "nt" else "clear")
 
     # procura a tag
-    content = response.findAll(
-        attrs={"class": re.compile("toclevel-\d+\s?(tocsection-\d+)?")})
+    content = response.findAll(attrs={"class": re.compile("toclevel-\d+\s?(tocsection-\d+)?")})
 
     # verifica se o artigo tem índice
     if content == []:
@@ -48,22 +46,18 @@ def get_content_table(response, url):
 
     # template para o índice
     header = "-" * 40
-    print("{header}\n{text:^40}\n{header}".format(
-        header=header, text="Índice"))
+    print("{header}\n{text:^40}\n{header}".format(header=header, text="Índice"))
 
     # printa o índice
     for ind in content:
         num = re.search(">\d+(\.\d+)*?<", str(ind))
-        text = re.search(
-            "toctext\">[A-Za-z0-9À-ú\s\.\,\–\_\(\)\;\:\'\"]+", str(ind))
+        text = re.search("toctext\">[A-Za-z0-9À-ú\s\.\,\–\_\(\)\;\:\'\"]+", str(ind))
 
         if "." in num.group():
             occurrences = num.group().count(".")
-            print("\t"*occurrences+"{0:>2s} {1}".format(num.group().replace(
-                ">", "").replace("<", "."), text.group().replace("toctext\">", "")))
+            print("\t"*occurrences+"{0:>2s} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
         else:
-            print("{0:>2s} {1}".format(num.group().replace(">", "").replace(
-                "<", "."), text.group().replace("toctext\">", "")))
+            print("{0:>2s} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
 
     # volta ao menu
     print("\n\nPressione ENTER para voltar ao menu...")
@@ -78,8 +72,7 @@ def get_images(response, url):
 
     # procura a tag
     content = response.findAll(
-        attrs={"href": re.compile(
-            "\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+")})
+        attrs={"href": re.compile("\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+")})
 
     # verifica se o artigo tem imagens
     if content == []:
@@ -90,8 +83,7 @@ def get_images(response, url):
 
     # template para as imagens
     header = "-" * 40
-    print("{header}\n{text:^40}\n{header}".format(
-        header=header, text="Imagens"))
+    print("{header}\n{text:^40}\n{header}".format(header=header, text="Imagens"))
 
     # array para excluir duplicados
     images = []
@@ -120,24 +112,20 @@ def get_references(response, url):
     os.system("cls" if os.name == "nt" else "clear")
 
     # procura a tag
-    content = response.findAll(
-        attrs={"id": re.compile("^content$")})
+    content = response.findAll(attrs={"id": re.compile("^content$")})
 
     # template para as referências
     header = "-" * 40
-    print("{header}\n{text:^40}\n{header}".format(
-        header=header, text="Referências"))
+    print("{header}\n{text:^40}\n{header}".format(header=header, text="Referências"))
 
     num = 1
     for ind in content:
-        text = re.search(
-            '<h2><span .+ id="Referências">.+</h2>\n<ul>.+</li>\n?(<li>?.+</li>\n)+.+</ul>', str(ind))
+        text = re.search('<h2><span .+ id="Referências">.+</h2>\n<ul>.+</li>\n?(<li>?.+</li>\n)+.+</ul>', str(ind))
 
         # caso em que as referências não são numeradas e não possuem links
         if text is not None:
             text = re.search("<ul>?(<li>.+</li>\n?)+</ul>", text.group())
-            text = text.group().replace("<ul>", "").replace(
-                "<li>", "").replace("</ul>", "").replace("</li>", "")
+            text = text.group().replace("<ul>", "").replace("<li>", "").replace("</ul>", "").replace("</li>", "")
             text = text.split("\n")
 
             for ref in text:
@@ -158,8 +146,7 @@ def get_links(response, url):
     os.system("cls" if os.name == "nt" else "clear")
 
     # procura a tag
-    content = response.findAll(
-        attrs={"id": re.compile("^content$")})
+    content = response.findAll(attrs={"id": re.compile("^content$")})
 
     # template para os links
     header = "-" * 40
@@ -170,8 +157,7 @@ def get_links(response, url):
     # array para eliminar duplicados
     links = []
     for ind in content:
-        text = re.findall(
-            "href=\"/wiki/[A-Za-z0-9À-ú\-\_\@\%\(\)\s]+\"", str(ind))
+        text = re.findall("href=\"/wiki/[A-Za-z0-9À-ú\-\_\@\%\(\)\s]+\"", str(ind))
 
         for link in text:
             # tratamento para não printar repetidos
@@ -194,15 +180,11 @@ def menu(url):
     # menu em forma de tabela
     header = "-" * 120
     lines = [header, "{0:<25} {1}".format("Opção", "Descrição"), header,
-             "{0:<25} {1}".format(
-        "1", "Listar os tópicos do índice do artigo"),
-        "{0:<25} {1}".format(
-        "2", "Listar todos os nomes de arquivos de imagens presentes no artigo"),
-        "{0:<25} {1}".format(
-        "3", "Listar todas as referências bibliográficas disponíveis na página"),
-        "{0:<25} {1}".format(
-        "4", "Listar todos os links para outros artigos da Wikipédia que são citados no conteúdo do artigo"),
-        "{0:<25} {1}".format("5", "Sair"), header]
+             "{0:<25} {1}".format("1", "Listar os tópicos do índice do artigo"),
+             "{0:<25} {1}".format("2", "Listar todos os nomes de arquivos de imagens presentes no artigo"),
+             "{0:<25} {1}".format("3", "Listar todas as referências bibliográficas disponíveis na página"),
+             "{0:<25} {1}".format("4", "Listar todos os links para outros artigos da Wikipédia que são citados no conteúdo do artigo"),
+             "{0:<25} {1}".format("5", "Sair"), header]
     print("\n".join(lines))
 
     option = input("Digite uma opção>")
