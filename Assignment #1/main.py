@@ -149,8 +149,7 @@ def get_links(response, url):
 
     # template para os links
     header = "-" * 40
-    print("{header}\n{text:^40}\n{header}".format(
-        header=header, text="Links para outros artigos"))
+    print("{header}\n{text:^40}\n{header}".format(header=header, text="Links para outros artigos"))
 
     i = 1
     # array para eliminar duplicados
