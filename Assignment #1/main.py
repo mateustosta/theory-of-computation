@@ -12,7 +12,7 @@ def url_handle():
     ao domínio pt.wikipedia.org/wiki/
     """
     # regex para detectar se a url é válida/pertence ao domínio desejado
-    URL_PATTERN = "((http|https)://)?(pt.wikipedia.org/wiki/)[a-zA-Z0-9%_]+"
+    URL_PATTERN = "((http|https)://)?(pt.wikipedia.org/wiki/).+"
 
     # lê de STDIN
     url = input("Digite a URL do artigo>").rstrip()
@@ -51,13 +51,13 @@ def get_content_table(response, url):
     # printa o índice
     for ind in content:
         num = re.search(">\d+(\.\d+)*?<", str(ind))
-        text = re.search("toctext\">[A-Za-z0-9À-ú\s\.\,\–\_\(\)\;\:\'\"]+", str(ind))
+        text = re.search("toctext\">[A-Za-z0-9À-ú\s\.\,\-\_\(\)\;\:\'\"]+", str(ind))
 
         if "." in num.group():
             occurrences = num.group().count(".")
-            print("\t"*occurrences+"{0:>2s} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
+            print("\t"*occurrences+"{0:>2} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
         else:
-            print("{0:>2s} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
+            print("{0:>2} {1}".format(num.group().replace(">", "").replace("<", "."), text.group().replace("toctext\">", "")))
 
     # volta ao menu
     print("\n\nPressione ENTER para voltar ao menu...")
@@ -71,8 +71,7 @@ def get_images(response, url):
     os.system("cls" if os.name == "nt" else "clear")
 
     # procura a tag
-    content = response.findAll(
-        attrs={"href": re.compile("\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+")})
+    content = response.findAll(attrs={"href": re.compile("\/[a-zA-Z]+\/[a-zA-Z]+:.+\.[a-zA-Z]+")})
 
     # verifica se o artigo tem imagens
     if content == []:
