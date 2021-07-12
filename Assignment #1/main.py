@@ -15,7 +15,7 @@ def url_handle():
     URL_PATTERN = "((http|https)://)?(pt.wikipedia.org/wiki/).+"
 
     # lê de STDIN
-    url = input("Digite a URL do artigo>").rstrip()
+    url = input("Digite a URL do artigo>").strip()
 
     # testa a url
     if re.match(URL_PATTERN, url):
