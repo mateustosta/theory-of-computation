@@ -19,7 +19,7 @@ def url_handle():
 
     # testa a url
     if re.match(URL_PATTERN, url):
-        if "http" not in url or "https" not in url:
+        if "http" not in url and "https" not in url:
             return "https://"+url
         return url
     else:
